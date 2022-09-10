@@ -1,0 +1,113 @@
+from copy import deepcopy
+
+import torch
+from torch import nn
+from torch.nn import functional as F
+from torch.autograd import Variable
+import torch.utils.data
+
+manual_seed = 555
+torch.manual_seed(manual_seed)
+
+def variable(t: torch.Tensor, use_cuda=True, **kwargs):
+    if torch.cuda.is_available() and use_cuda:
+        t = t.cuda()
+    return Variable(t, **kwargs)
+
+
+class EWC(object):
+    def __init__(self, model: nn.Module, dataset: list):
+        #print("Need to swap back to F.CrossEntropy() loss in utils.py EWC class: normal_train() and ewc_train()")
+        #print("also need to go back to softmax correct func in test()")
+        self.model = model
+        self.dataset = dataset
+
+        self.params = {n: p for n, p in self.model.named_parameters() if p.requires_grad}
+        self._means = {}
+        self._precision_matrices = self._diag_fisher()
+
+        for n, p in deepcopy(self.params).items():
+            self._means[n] = variable(p.data)
+
+    def _diag_fisher(self):
+        precision_matrices = {}
+        for n, p in deepcopy(self.params).items():
+            p.data.zero_()
+            precision_matrices[n] = variable(p.data)
+
+        self.model.train()
+        for input in self.dataset:
+            self.model.zero_grad()
+            input = variable(torch.Tensor(input))
+            input.unsqueeze_(0)
+            output = self.model(input).view(1, -1)
+            label = output.max(1)[1].view(-1)
+            loss = F.nll_loss(F.log_softmax(output, dim=1), label)
+            loss.backward()
+
+            for n, p in self.model.named_parameters():
+                precision_matrices[n].data += p.grad.data ** 2 / len(self.dataset)
+        #TODO replace precision matrices with the 
+        precision_matrices = {n: p for n, p in precision_matrices.items()}
+        return precision_matrices
+
+    def penalty(self, model: nn.Module):
+        loss = 0
+        for n, p in model.named_parameters():
+            _loss = self._precision_matrices[n] * (p - self._means[n]) ** 2
+            loss += _loss.sum()
+        return loss
+
+
+def normal_train(model: nn.Module, optimizer: torch.optim, data_loader: torch.utils.data.DataLoader, loss_weights):
+    model.train()
+    epoch_loss = 0
+    for input, target in data_loader:
+        input, target = variable(input), variable(target)
+        optimizer.zero_grad()
+        output = model(input)
+        loss = F.cross_entropy(output, target, weight=loss_weights)
+        epoch_loss += loss.data[0] if loss.data.numel() > 1 else loss.data.item()
+        loss.backward()
+        optimizer.step()
+    return epoch_loss / len(data_loader)
+
+
+def ewc_train(model: nn.Module, optimizer: torch.optim, data_loader: torch.utils.data.DataLoader,
+              ewc: EWC, importance: float, loss_weights):
+    model.train()
+    epoch_loss = 0
+    for input, target in data_loader:
+        input, target = variable(input), variable(target)
+        optimizer.zero_grad()
+        output = model(input)
+        loss = F.cross_entropy(output, target, weight=loss_weights) + importance * ewc.penalty(model)
+        epoch_loss += loss.data[0] if loss.data.numel() > 1 else loss.data.item()
+        loss.backward()
+        optimizer.step()
+    return epoch_loss / len(data_loader)
+
+
+def test(model: nn.Module, data_loader: torch.utils.data.DataLoader):
+    model.eval()
+    correct = 0
+    class_matrix = {}
+    for i in range(10):
+        class_matrix[i] = {}
+        class_matrix[i]['total_pred'] =0
+        class_matrix[i]['true_positive'] =0
+        class_matrix[i]['false_negative'] =0
+    for input, target in data_loader:
+        input, target = variable(input), variable(target)
+        output = model(input)
+        prediction = F.softmax(output, dim=1).max(dim=1)[1]
+        for idx,each in enumerate(prediction):
+            each = each.item()
+            class_matrix[each]['total_pred'] += 1
+            if each == target[idx]:
+                class_matrix[each]['true_positive'] += 1
+            else:
+                class_matrix[target[idx].item()]['false_negative'] += 1
+
+        correct += (prediction == target).data.sum()
+    return correct / len(data_loader.dataset),class_matrix

@@ -1,0 +1,13 @@
+{
+    "in_features":4,
+    "hidden_size":128,
+    "num_classes":2,
+    "sequence_len":7,
+    "lstm_dict":"saved_nets/BASE_lstm_state_dict_00-43-02_2021-08-15NO_SPEED_FIXED_DATALOADER_FINAL_TRAINED_LSTM_70",
+    "ewc_dict":"saved_nets/EWC_lstm_state_dict_00-43-02_2021-08-15NO_SPEED_FIXED_DATALOADER_FINAL_TRAINED_LSTM_70",
+    "loss_history":"results/loss_history.pickle",
+    "ewc_acc_history":"results/ewc_acc_history.pickle",
+    "lstm_acc_history":"results/lstm_acc_history.pickle",
+    "pred_history": "results/pred_history.pickle",
+    "val_history": "results/val_history.pickle"
+}

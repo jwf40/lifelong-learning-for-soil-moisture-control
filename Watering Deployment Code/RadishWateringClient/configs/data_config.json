@@ -1,0 +1,7 @@
+{
+    "min_moisture":400,
+    "max_moisture":650,
+    "data_dir":"data/cambridge_sensor_data.csv",
+    "old_data_dir": "data/PARSED_NW_Ground_Stations_2016.csv",
+    "required_fields":"hum,temp,dew_point,pressure"
+}
