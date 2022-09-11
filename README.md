@@ -11,7 +11,7 @@ The project features 2 key components, the weather station (in-field sensor box)
 ### Weather Station
  The weather station contained an ESP32 microcontroller, connected to a 20v battery and the DHT11 humidity and temperature sensor, the BMP280 pressure sensor and four soil moisture sensors (one for each testbed).
 
-<img src="imgs/circuit.png" width="350">
+<img src="imgs/circuit.png" width="500">
 
 
 The weather station operated on the ESP32 microcontroller, which naturally lends itself to taking on a 'server' role. Combining this with relays, the weather station operates on a low-energy mode until a request is received, at which point readings are taken and return to the client. 
@@ -26,16 +26,16 @@ The LSTM model was pretrained on weather data from France. Once deployed, elasti
 
 As the weather station assumed the role of server, the remote machine learning logic is referred to as the client.
 
-<img src="imgs/Flowchart.png" width="250">
+<img src="imgs/Flowchart.png" width="400">
 
 
 ## Results
 For complete results analysis, please refer to [paper](Papers/Lifelong_Learning_for_Closed_Loop_Soil_Moisture_Control)
 
 
-<img src="imgs/f_score.png" width="320">
+<img src="imgs/f_score.png" width="380">
 
-<img src="imgs/soil_boxplot.png" width="450">
+<img src="imgs/soil_boxplot.png" width="700">
 
 ## VAE Extension to EWC
 While EWC works well, estimating the likelihood term $p(\theta|a)$ using the Laplace approximation may be too simple to appropriately model certain distributions. 
@@ -43,8 +43,8 @@ While EWC works well, estimating the likelihood term $p(\theta|a)$ using the Lap
 Variational autoencoders are predicated on variational Bayes', using binary cross entropy loss and the Kullback-Liebler divergence to find the best approximation of a distribution $p(x|z)$. By providing a VAE with  the LSTM network parameters as input, such that $x=\theta$, and by conditioning $z$ on the data of a given task, $a$, a variational autoencoder may be used to approximate the probability density function $p(\theta|a)$. 
 
 ## VAE Results
-<img src="imgs/Task0.png" width="450">
+<img src="imgs/Task0.png" width="700">
 
-<img src="imgs/Task1.png" width="450">
+<img src="imgs/Task1.png" width="700">
 
-<img src="imgs/Task2.png" width="450">
+<img src="imgs/Task2.png" width="700">
