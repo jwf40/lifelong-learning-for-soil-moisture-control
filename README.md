@@ -2,8 +2,7 @@
 ## Abstract
 Soil moisture control is a key challenge in optimising crop yield, which is increasingly important as food security is becoming less and less certain. This work presents a lifelong learning-based LSTM precipitation prediction model, paired with a bespoke sensor-based 3D-printed weather station, to facilitate the optimisation of soil-moisture. The results show that not only does our LSTM model outperform non-machine learning approaches to soil moisture control, but also that our novel application of the elastic weight consolidation (EWC) lifelong learning paradigm further improves soil moisture control. The project concludes with a novel extension of the elastic weight consolidation algorithm through application of a variational autoencoder to estimate an intractable likelihood term.
 
-<img src="imgs/box_outside_side_View.jpg" width="250">
-<img src="imgs/sm_sensor.jpg" width="250">
+<img src="imgs/box_outside_side_View.jpg" width="250"><img src="imgs/sm_sensor.jpg" width="250">
 
 
 ## Project Architecture
@@ -34,8 +33,7 @@ As the weather station assumed the role of server, the remote machine learning l
 For complete results analysis, please refer to [paper](Papers/Lifelong_Learning_for_Closed_Loop_Soil_Moisture_Control)
 
 
-<img src="imgs/f_score.png" width="200">
-<img src="imgs/soil_boxplot.png" width="250">
+<img src="imgs/f_score.png" width="200"><img src="imgs/soil_boxplot.png" width="250">
 
 ## VAE Extension to EWC
 While EWC works well, estimating the likelihood term $p(\theta|a)$ using the Laplace approximation may be too simple to appropriately model certain distributions. 
@@ -43,8 +41,8 @@ While EWC works well, estimating the likelihood term $p(\theta|a)$ using the Lap
 Variational autoencoders are predicated on variational Bayes', using binary cross entropy loss and the Kullback-Liebler divergence to find the best approximation of a distribution $p(x|z)$. By providing a VAE with  the LSTM network parameters as input, such that $x=\theta$, and by conditioning $z$ on the data of a given task, $a$, a variational autoencoder may be used to approximate the probability density function $p(\theta|a)$. 
 
 ## VAE Results
-<img src="imgs/task0.png" width="250">
+<img src="imgs/Task0.png" width="250">
 
-<img src="imgs/task1.png" width="250">
+<img src="imgs/Task1.png" width="250">
 
-<img src="imgs/task2.png" width="250">
+<img src="imgs/Task2.png" width="250">
